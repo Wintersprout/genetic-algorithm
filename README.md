@@ -26,4 +26,4 @@
 <h2>About the Program / Acknowledgements</h2>
 <p>The program was originally written in November 2004 as a grading project of Applied Computational Inteligence at Federal University of Ceara, Brazil. I took it out from the drawer and rewrote it in March 2020, with improved readability and computing efficiency.</p>
 <p>The program is coded in C. It was compiled with Microsoft Visual Studio 2019, Community Version.</p>
-<p> Special thanks to my wife, for looking after my 7-month old son while I was taking the rust out of my coding skills; and to Professor Almeida of Electrical Engineering Department, for giving me this assigment back in 2004.</p>
+<p> Special thanks to my wife, for looking after my 7-month old son while I was taking the rust out of my coding skills; and to Professor Almeida from the Electrical Engineering Department of Federal University of Ceara, for giving me this assigment back in 2004.</p>
