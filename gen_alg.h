@@ -14,7 +14,7 @@
 #include <stdlib.h>
 
 #define PI 3.141592654
-#define PRECISION 16 //Maximum value must not be higher than the size of unsigned int in bits (4 bytes = 32 bits)
+#define PRECISION 24 //Maximum value must not be higher than the size of unsigned int in bits (4 bytes = 32 bits)
 #define TRUE 1
 #define FALSE 0
 
@@ -87,6 +87,24 @@ char* dec2bin(unsigned int dec, unsigned int len) {
 
     return bin;
 }
+float mean(individual* pop, unsigned int size) {
+    float sum = 0;
+
+    for (unsigned int i = 0; i < size; i++) {
+        sum += pop[i].fitness;
+    }
+
+    return (sum / (float)size);
+}
+float variance(individual* pop, unsigned int size) {
+    float sum = 0;
+    float avrg = mean(pop, size);
+    
+    for (unsigned int i = 0; i < size; i++) {
+        sum += (float)pow(pop[i].fitness - avrg, 2);
+    }
+    return (sum / (float)size);
+}
 //linear_mapping() returns a value in the range of [-1, 2] mapped from a PRECISION bit number 'x' within [0, 2^PRECISION].
 float linear_mapping(unsigned int x) {
     /*f(x) = B * x - C, where:
@@ -102,7 +120,9 @@ float objective_function(float x) {
 void init(individual* pop, unsigned int size) {
     unsigned int i, j;
 
+    //Seed
     srand((unsigned)time(NULL));
+    //srand((unsigned int)1);
 
     for (i = 0; i < size; i++) {
         pop[i].id = 0;
@@ -158,6 +178,7 @@ unsigned int crossover(unsigned int x, unsigned int y)
     bin2 = dec2bin(y, PRECISION);
 
     //Crossover point.
+    //r = (unsigned int)(PRECISION / 2);
     r = rand() % PRECISION;
 
     while (i <= r) {
@@ -187,4 +208,55 @@ unsigned int mutation(unsigned int x)
     }
 
     return bin2dec(bin);
+}
+
+unsigned int tournament(individual* pop, unsigned int size, unsigned int rounds) {
+    
+    unsigned int halfSize = (unsigned int)floor(size / 2);
+    int challenger = 0, winner = 0;
+    int* participants;
+
+    if (rounds > halfSize) {
+        printf("Adjusting tournament rounds to half of the population ...\n");
+        rounds = halfSize;
+    }
+
+    participants = malloc(sizeof(int) * (int)rounds);
+    if (!participants) {
+        printf("Not enough memory!");
+        return EXIT_FAILURE;
+    }
+
+    // Randomly select one element
+    participants[0] = roulette_wheel(pop, size);//rand() % size;
+    winner = participants[0];
+
+    for (unsigned int i = 1; i < rounds; i++) {
+        // Making sure the challenger has not been selected before
+        int selected = FALSE;
+        do {
+            selected = FALSE;
+            challenger = roulette_wheel(pop, size);//rand() % size;
+            for (unsigned int j = 0; j < i; j++) {
+                if (challenger == participants[j])
+                    selected = TRUE;
+            }
+        }while(selected == TRUE);
+        // Updating list of participants
+        participants[i] = (int)challenger;
+        // Contest
+        //printf("%f VS %f\n", pop[winner].fitness, pop[challenger].fitness);
+        if (pop[winner].fitness < pop[challenger].fitness) {
+                winner = challenger;
+        }
+        
+    }
+    //printf("End of the tournament.\n");
+    return winner;
+}
+void print_population(individual* pop, unsigned int size) {
+    printf("Genoma\t\tFitness\t\tIndividual\n");
+    for (unsigned int i = 0; i < size; i++) {
+        printf("%u\t%f\t%f\n", pop[i].id, pop[i].fitness, linear_mapping(pop[i].id));
+    }
 }
